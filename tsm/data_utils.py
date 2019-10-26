@@ -99,7 +99,7 @@ def encode_categories(df: pd.DataFrame, cat_cols: Union[List[str], str]) -> pd.D
             df[col] = le.fit_transform(df[col]).astype(np.uint16)
         else:
             df[col] = le.fit_transform(df[col]).astype(np.uint32)
-    return df
+    return df, le
 
 
 def df_to_x_y(df: pd.DataFrame, x_indexes: Union[List[int], int], y_index: int = None):
