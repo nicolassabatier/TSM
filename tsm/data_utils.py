@@ -58,9 +58,9 @@ def compress_memory_usage(df_in: pd.DataFrame, replacer: dict = None):
                 df[col] = df[col].astype(np.float32)
 
     mem_usg = df.memory_usage().sum() / 1024 ** 2
-    logging.info(f'Memory usage pre-compression was {start_mem_usg}')
-    logging.info(f'Memory usage after-compression was {mem_usg}')
-    logging.info(f"This is  {100 * mem_usg / start_mem_usg}% of the initial size")
+    logging.info('Memory usage pre-compression was {}'.format(start_mem_usg))
+    logging.info('Memory usage after-compression was {}'.format(mem_usg))
+    logging.info("This is  {}% of the initial size".format(100 * mem_usg / start_mem_usg))
     return df, cols_with_nas
 
 

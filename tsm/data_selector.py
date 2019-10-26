@@ -27,6 +27,6 @@ def get_series_past_k_lags(s: pd.Series, k: Union[int, List] = 10) -> pd.DataFra
         raise TypeError('K must be integer or list')
 
     for lag in k_list:
-        df_with_lags[f'{s.name}_t-{lag}'] = [np.nan for _ in range(lag)] + list(s.iloc[:-lag].values)
+        df_with_lags['{}_t-{}'.format(s.name, lag)] = [np.nan for _ in range(lag)] + list(s.iloc[:-lag].values)
 
     return df_with_lags

@@ -154,4 +154,4 @@ Temporary Items
 # Project specific
 .idea/
 /kaggle
-
+.vscode/
