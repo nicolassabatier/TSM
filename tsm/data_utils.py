@@ -15,7 +15,7 @@ def compress_memory_usage(df_in: pd.DataFrame, replacer: dict = None):
     cols_with_nas = []
     df = df_in.copy()  # Avoid changing input df
     for col in tqdm(df.columns, "DataFrame: compress_memory_usage"):
-        if df[col].dtype != object:  # Exclude strings
+        if df[col].dtype != object:
             # make variables for Int, max and min
             is_int = False
             mx = df[col].max()
@@ -58,9 +58,9 @@ def compress_memory_usage(df_in: pd.DataFrame, replacer: dict = None):
                 df[col] = df[col].astype(np.float32)
 
     mem_usg = df.memory_usage().sum() / 1024 ** 2
-    logging.info('Memory usage pre-compression was {}'.format(start_mem_usg))
-    logging.info('Memory usage after-compression was {}'.format(mem_usg))
-    logging.info("This is  {}% of the initial size".format(100 * mem_usg / start_mem_usg))
+    print('Memory usage pre-compression was {}'.format(start_mem_usg))
+    print('Memory usage after-compression was {}'.format(mem_usg))
+    print("This is  {}% of the initial size".format(100 * mem_usg / start_mem_usg))
     return df, cols_with_nas
 
 
@@ -82,8 +82,8 @@ def time_processing(df: pd.DataFrame, timestamp_key: str):
 
 
 def ordinal2wave(col_name: str, df: pd.DataFrame):
-    df[f'{col_name}_sin'] = np.sin(2 * np.pi * df[col_name] / df[col_name].max())
-    df[f'{col_name}_cos'] = np.cos(2 * np.pi * df[col_name] / df[col_name].max())
+    df['{}_sin'.format(col_name)] = np.sin(2 * np.pi * df[col_name] / df[col_name].max())
+    df['{}_cos'.format(col_name)] = np.cos(2 * np.pi * df[col_name] / df[col_name].max())
     return df
 
 
@@ -126,3 +126,17 @@ def train_dev_test_split(df: pd.DataFrame, train_pct: int = 0.9, dev_pct: int = 
         test_df = df.iloc[tr_idx:, :]
         assert (len(train_df) + len(test_df)) == len(df), 'Mismatch in split'
         return train_df, test_df
+
+def compute_and_add_mean_by_a_and_b(df: pd.DataFrame, mean_of: str, a: str, b: str) -> pd.DataFrame:
+    mean_by =  df.groupby([a, b], as_index=False).agg({mean_of: 'mean'})
+    means_by_a = {}
+    for x in list(set(df[a])):
+        x_data = mean_by[mean_by[a] == x][[b, mean_of]].to_dict('records')
+        means_by_a[x] = x_data
+    df_with_means = only_add_mean_by_a_and_b(df, mean_of, a, b, means_by_a)
+    return df_with_means, means_by_a
+
+def only_add_mean_by_a_and_b(df: pd.DataFrame, mean_of: str, a: str, b: str, means_by_a_and_b: dict) -> pd.DataFrame:
+    means_by_and_b_df = pd.DataFrame(df[a].progress_apply(lambda x: [x[mean_of] for x in means_by_a_and_b[x]]).values.tolist(),
+        columns=['{}_{}_{}_mean'.format(a, b, y) for y in [y[b] for y in means_by_a_and_b[df[a].values[0]]]]).reset_index(drop=True)
+    return df.reset_index(drop=True).merge(means_by_and_b_df, left_index=True, right_index=True)
