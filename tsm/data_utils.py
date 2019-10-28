@@ -140,3 +140,4 @@ def only_add_mean_by_a_and_b(df: pd.DataFrame, mean_of: str, a: str, b: str, mea
     means_by_and_b_df = pd.DataFrame(df[a].progress_apply(lambda x: [x[mean_of] for x in means_by_a_and_b[x]]).values.tolist(),
         columns=['{}_{}_{}_mean'.format(a, b, y) for y in [y[b] for y in means_by_a_and_b[df[a].values[0]]]]).reset_index(drop=True)
     return df.reset_index(drop=True).merge(means_by_and_b_df, left_index=True, right_index=True)
+    
