@@ -32,19 +32,20 @@ def get_series_past_k_lags(s: pd.Series, k: Union[int, List] = 10) -> pd.DataFra
 
     return df_with_lags
 
-def split_data_frame_by_column(data: pd.DataFrame, by: str):
+def split_data_frame_by_column(data: pd.DataFrame, by: str, drop: bool = True):
 
     dataframes = []
     split_values = data[by].value_counts().index.values.tolist()
     print('Splitter will return list of', len(split_values), 'dataframe')
     for v in split_values:
         v_data = data[data[by] == v].copy()
-        v_data.drop(by, axis=1, inplace=True)
+        if drop:
+            v_data.drop(by, axis=1, inplace=True)
         dataframes.append(v_data)
     del data
     return dataframes
 
-def split_data_file_by_column(datapath: str, by: str):
+def split_data_file_by_column(datapath: str, by: str, drop):
     filename, file_extension = os.path.splitext(datapath)
 
     if file_extension == '.pkl' or file_extension == '.pickle':

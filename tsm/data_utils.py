@@ -6,6 +6,7 @@ import numpy as np
 import pandas as pd
 from sklearn.preprocessing import LabelEncoder
 from tqdm.auto import tqdm
+from pandas.api.types import is_datetime64_any_dtype as is_datetime
 
 tqdm.pandas()
 
@@ -15,7 +16,7 @@ def compress_memory_usage(df_in: pd.DataFrame, replacer: dict = None):
     cols_with_nas = []
     df = df_in.copy()  # Avoid changing input df
     for col in tqdm(df.columns, "DataFrame: compress_memory_usage"):
-        if df[col].dtype != object:
+        if df[col].dtype != object and not is_datetime(df[col]):
             # make variables for Int, max and min
             is_int = False
             mx = df[col].max()
