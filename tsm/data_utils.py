@@ -4,7 +4,7 @@ from typing import Union, List, Tuple
 
 import numpy as np
 import pandas as pd
-from sklearn.preprocessing import LabelEncoder
+
 from tqdm.auto import tqdm
 from pandas.api.types import is_datetime64_any_dtype as is_datetime
 
@@ -65,10 +65,6 @@ def compress_memory_usage(df_in: pd.DataFrame, replacer: dict = None):
     return df, cols_with_nas
 
 
-def get_data_sample(df: pd.DataFrame, pct_size: float = 0.1):
-    return df.sample(frac=pct_size)
-
-
 def time_processing(df: pd.DataFrame, timestamp_key: str):
     df[timestamp_key] = pd.to_datetime(df[timestamp_key])
     df['dt_m'] = df[timestamp_key].dt.month.astype(np.int8)
@@ -86,21 +82,6 @@ def ordinal2wave(col_name: str, df: pd.DataFrame):
     df['{}_sin'.format(col_name)] = np.sin(2 * np.pi * df[col_name] / df[col_name].max())
     df['{}_cos'.format(col_name)] = np.cos(2 * np.pi * df[col_name] / df[col_name].max())
     return df
-
-
-def encode_categories(df: pd.DataFrame, cat_cols: Union[List[str], str]) -> pd.DataFrame:
-    if type(cat_cols) == str:
-        cat_cols = [cat_cols]
-    for col in cat_cols:
-        le = LabelEncoder()
-        no_of_categories = len(set(df[col]))
-        if no_of_categories < 255:
-            df[col] = le.fit_transform(df[col]).astype(np.uint8)
-        elif no_of_categories < 65535:
-            df[col] = le.fit_transform(df[col]).astype(np.uint16)
-        else:
-            df[col] = le.fit_transform(df[col]).astype(np.uint32)
-    return df, le
 
 
 def df_to_x_y(df: pd.DataFrame, x_indexes: Union[List[int], int], y_index: int = None):
