@@ -1,6 +1,6 @@
 import logging
 from math import ceil
-from typing import Union, List, Tuple
+from typing import Union, List, Tuple,Dict
 
 import numpy as np
 import pandas as pd
@@ -112,7 +112,7 @@ def df_to_x_y(df: pd.DataFrame, x_indexes: Union[List[int], int], y_index: int =
     return x
 
 
-def train_dev_test_split(df: pd.DataFrame, train_pct: int = 0.9, dev_pct: int = 0.025) -> Tuple:
+def train_dev_test_split(df: pd.DataFrame, train_pct: int = 0.9, dev_pct: int = 0.025) -> Dict:
     tr_idx = int(train_pct * len(df))
     if dev_pct > 0:
         dv_idx = int((train_pct + dev_pct) * len(df))
@@ -120,9 +120,16 @@ def train_dev_test_split(df: pd.DataFrame, train_pct: int = 0.9, dev_pct: int = 
         train_df = df.iloc[:tr_idx, :]
         test_df = df.iloc[dv_idx:, :]
         assert (len(train_df) + len(dev_df) + len(test_df)) == len(df), 'Mismatch in split'
-        return train_df, dev_df, test_df
+        return {'train_df':train_df, 'dev_df':dev_df, 'test_df':test_df}
     else:
         train_df = df.iloc[:tr_idx, :]
         test_df = df.iloc[tr_idx:, :]
         assert (len(train_df) + len(test_df)) == len(df), 'Mismatch in split'
         return train_df, test_df
+
+def train_dev_test_split_index(data_size, train_pct: int = 0.9, dev_pct: int = 0.025):
+    tr_idx = int(train_pct * data_size)
+    dv_idx = int(train_pct + dev_pct) * data_size
+    return range(tr_idx), range(tr_idx, dv_idx),range(dv_idx,data_size)
+
+
