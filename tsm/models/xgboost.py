@@ -2,8 +2,9 @@ import pandas as pd
 from tsm.evaluators import k_fold_validator
 from sklearn.metrics import mean_squared_error
 from math import sqrt
-import joblib
+import pickle
 import xgboost as xgb
+import time
 
 SEED = 42
 ROUNDS = 10000
@@ -27,18 +28,20 @@ for tr_idx, ts_idx in k_fold_validator(k=2, data=data.index.values, shuffle=True
     dtest = xgb.DMatrix(x_ts, label=y_ts)
     num_round = ROUNDS
     param = {}
-    param = {'max_depth': 10, 'eta': 0.05, 'objective': 'reg:squarederror', 'eval_metric': 'rmse'}
-    param['gpu_id'] = 0
-    param['tree_method'] = 'gpu_hist'
-    evallist = [(dtest, 'eval')]
-    bst = xgb.train(param, dtrain, ROUNDS, evallist, early_stopping_rounds=EARLY_STOP)
-    
-    rmsle = sqrt(mean_squared_error(y_ts, bst.predict(dtest, ntree_limit=bst.best_ntree_limit)))
+    param = {'max_depth': 15, 'eta': 0.05, 'objective': 'reg:squarederror', 'eval_metric': 'rmse'}
+    #param['gpu_id'] = 0
+    #param['tree_method'] = 'gpu_hist'
+    bst = xgb.train(param, dtrain, ROUNDS, evals=[(dtest, 'eval')], early_stopping_rounds=EARLY_STOP)
+    y_hat = bst.predict(dtest, ntree_limit=bst.best_ntree_limit)
+    rmsle = sqrt(mean_squared_error(y_ts, y_hat))
     print('Fold rmsle:', rmsle)
     errors.append(rmsle)
+    
+    with open('data/objects/xgboost_met0_rmsle_{}_preds.pkl'.format(rmsle), 'wb') as fout:
+        pickle.dump(list(zip(y_hat, y_ts)), fout)
+    bst.save_model('data/objects/xgboost_met0_rmsle_{}.pkl'.format(rmsle))
+    break
 
-overall_rmsle = round(sum(errors) / len(errors), 3)
-print('Overall rmsle:', overall_rmsle)
+#overall_rmsle = round(sum(errors) / len(errors), 3)
+#print('Overall rmsle:', overall_rmsle)
 
-joblib.dump(lgb_reg, 'data/objects/xgboost_met0_rmsle_{}.pkl'.format(overall_rmsle))
-joblib.dump(list(zip(y_hat, y_ts)), 'data/objects/xgboost_met0_rmsle_{}_preds.pkl'.format(overall_rmsle))
