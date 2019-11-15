@@ -1,15 +1,16 @@
 import pandas as pd
 from tsm.data_utils import time_processing, encode_categories, ordinal2wave
 from tsm.data_selector import get_series_past_k_lags
+from sklearn.externals import joblib
 
 if __name__ == '__main__':
-    data_path = '../kaggle/input/ashrae-energy-prediction/train.pkl'
+    data_path = 'data/train.pkl'
     data = pd.read_pickle(data_path)
 
-    add_time = False
+    add_time = True
     add_categories = False
     add_ordinal2wave = True
-    add_past_lags = True
+    add_past_lags = False
     add_ewm = True
     
     if add_time:
@@ -43,5 +44,6 @@ if __name__ == '__main__':
         k_dew_e_025.name = 'k_dew_e_025'
         data = pd.concat([data.reset_index(drop=True), k_air_e_01, k_dew_e_01, k_air_e_025, k_dew_e_025], axis=1,
                          sort=False)
-
-    data.to_pickle(data_path)
+    print(type(data))
+    joblib.dump(data,data_path)
+    #data.to_pickle(data_path)

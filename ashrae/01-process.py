@@ -1,6 +1,7 @@
 import gc
 from tsm.data_utils import compress_memory_usage
 import pandas as pd
+from sklearn.externals import joblib
 
 gc.enable()
 
@@ -18,14 +19,14 @@ NA_REPLACER = {
 
 
 def load_data():
-    train_data = pd.read_csv('kaggle/input/ashrae-energy-prediction/train.csv')
-    building = pd.read_csv('kaggle/input/ashrae-energy-prediction/building_metadata.csv')
-    weather_train = pd.read_csv('kaggle/input/ashrae-energy-prediction/weather_train.csv')
+    train_data = pd.read_csv('train.csv')
+    building = pd.read_csv('building_metadata.csv')
+    weather_train = pd.read_csv('weather_train.csv')
     train_data = train_data.merge(building, on='building_id', how='left')
     train_data = train_data.merge(weather_train, on=['site_id', 'timestamp'], how='left')
 
-    test_data = pd.read_csv('kaggle/input/ashrae-energy-prediction/test.csv')
-    weather_test = pd.read_csv('kaggle/input/ashrae-energy-prediction/weather_test.csv')
+    test_data = pd.read_csv('test.csv')
+    weather_test = pd.read_csv('weather_test.csv')
     test_data = test_data.merge(building, on='building_id', how='left')
     test_data = test_data.merge(weather_test, on=['site_id', 'timestamp'], how='left')
 
@@ -36,8 +37,8 @@ if __name__ == '__main__':
     train, test = load_data()
 
     train, _ = compress_memory_usage(train, replacer=NA_REPLACER)
-    train.to_pickle('kaggle/input/ashrae-energy-prediction/train.pkl')
+    train.to_pickle('data/train.pkl')
 
     test, _ = compress_memory_usage(train, replacer=NA_REPLACER)
-    test.to_pickle('kaggle/input/ashrae-energy-prediction/test.pkl')
+    test.to_pickle('data/test.pkl')
 
