@@ -20,5 +20,6 @@ def load_normalisers_and_scale_data_frame(df: pd.DataFrame, store_path: str):
                 print('Found {} for {}'.format(normalizer, col))
                 with open(normalizer, 'rb') as f_in:
                     col_scaler = pickle.load(f_in)
+
                 df[col] = col_scaler.transform(df[col].values.reshape(-1, 1))
     return df

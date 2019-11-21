@@ -155,3 +155,4 @@ Temporary Items
 .idea/
 /data
 .vscode/
+*.ipynb
