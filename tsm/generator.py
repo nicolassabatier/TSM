@@ -84,7 +84,7 @@ def apply_kernels(X, kernels):
 
 class DataGenerator(keras.utils.Sequence):
 
-    def __init__(self, X, kernels,normaliser,batch_size=1, shuffle = False):
+    def __init__(self, X, kernels = None,normaliser = None, batch_size=1, shuffle = False):
         self.X = X
         self.X['date'] = X.timestamp.dt.date
         self.kernels = kernels
@@ -108,10 +108,8 @@ class DataGenerator(keras.utils.Sequence):
             X, Y = [], []
             for local_date in local_X.groupby(['building_id', 'date']):
 
-                X_batch = apply_kernels(
-                    local_date[1].drop(['building_id', 'date', 'timestamp', 'log_meter_reading'], axis=1).values,
-                    self.kernels)
-                X_batch = self.normalisers.transform(X_batch)
+                X_batch = local_date[1].drop(['building_id', 'date', 'timestamp', 'log_meter_reading'], axis=1).values
+                #X_batch = self.normalisers.transform(X_batch)
                 Y_batch = local_date[1].log_meter_reading.values
                 try:
                     X.append(X_batch.reshape((24, X_batch.shape[1],1)))
